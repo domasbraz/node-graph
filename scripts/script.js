@@ -76,6 +76,63 @@ window.onload = function()
         });
     }
 
+    function drawArrow(nodeA, nodeB) 
+    {
+        if (nodeA.x == nodeB.x && nodeA.y == nodeB.y)
+        {
+            return;
+        }
+        const nodePoints = findClosestPoints(nodeA, nodeB);
+
+        if (nodePoints == undefined)
+        {
+            return;
+        }
+
+        const pointAX = nodePoints[0][0];
+        const pointAY = nodePoints[0][1];
+        const pointBX = nodePoints[1][0];
+        const pointBY = nodePoints[1][1];
+
+        context.strokeStyle = 'black';
+        context.lineWidth = 2;
+        context.fillStyle = 'black';
+
+        // Draw the line
+        context.beginPath();
+        context.moveTo(pointAX, pointAY);
+        context.lineTo(pointBX, pointBY);
+        context.stroke();
+    
+        // Draw the arrowhead
+        const arrowSize = 10;
+        const angle = Math.atan2(pointBY - pointAY, pointBX - pointAX);
+        
+        // Arrowhead points
+        const arrowX1 = pointBX - arrowSize * Math.cos(angle - Math.PI / 6);
+        const arrowY1 = pointBY - arrowSize * Math.sin(angle - Math.PI / 6);
+        const arrowX2 = pointBX - arrowSize * Math.cos(angle + Math.PI / 6);
+        const arrowY2 = pointBY - arrowSize * Math.sin(angle + Math.PI / 6);
+    
+        context.beginPath();
+        context.moveTo(pointBX, pointBY);
+        context.lineTo(arrowX1, arrowY1);
+        context.lineTo(arrowX2, arrowY2);
+        context.lineTo(pointBX, pointBY);
+        context.fill();
+
+        const midpoint = [(nodeA.x + nodeB.x) / 2, (nodeA.y + nodeB.y) / 2];
+
+        context.font = '20px Arial';
+        context.fillStyle = 'black';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.strokeStyle = "white";
+        context.lineWidth = 2;
+        context.strokeText("line", midpoint[0], midpoint[1] - 10);
+        context.fillText("line", midpoint[0], midpoint[1] - 10);
+    }
+
     function clearCanvas()
     {
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -84,8 +141,10 @@ window.onload = function()
     function updateCanvas()
     {
         clearCanvas();
-        drawArrow(nodes[0].x, nodes[0].y, nodes[1].x, nodes[1].y);
+        
+        drawArrow(nodes[0], nodes[1]);
         drawNodes();
+        
     }
 
     // Initial draw
@@ -168,34 +227,5 @@ window.onload = function()
     });
 
 
-    function drawArrow(startX, startY, endX, endY) 
-    {
-        context.strokeStyle = 'black';
-        context.lineWidth = 2;
-        context.fillStyle = 'black';
-
-        // Draw the line
-        context.beginPath();
-        context.moveTo(startX, startY);
-        context.lineTo(endX, endY);
-        context.stroke();
-    
-        // Draw the arrowhead
-        const arrowSize = 10;
-        const angle = Math.atan2(endY - startY, endX - startX);
-        
-        // Arrowhead points
-        const arrowX1 = endX - arrowSize * Math.cos(angle - Math.PI / 6);
-        const arrowY1 = endY - arrowSize * Math.sin(angle - Math.PI / 6);
-        const arrowX2 = endX - arrowSize * Math.cos(angle + Math.PI / 6);
-        const arrowY2 = endY - arrowSize * Math.sin(angle + Math.PI / 6);
-    
-        context.beginPath();
-        context.moveTo(endX, endY);
-        context.lineTo(arrowX1, arrowY1);
-        context.lineTo(arrowX2, arrowY2);
-        context.lineTo(endX, endY);
-        context.fill();
-    }
 
 }
