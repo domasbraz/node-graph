@@ -9,9 +9,9 @@ window.onload = function()
 
     var nodes = 
     [
-        { x: 50, y: 50, radius: 30, color: 'blue', isDragging: false, z: 0, id: "r1", text: "Node"},
-        { x: 200, y: 200, radius: 30, color: 'red', isDragging: false, z: 1, id: "r2", text: "Node"},
-        { x: 350, y: 50, radius: 30, color: 'green', isDragging: false, z: 2, id: "r3", text: "Node"}
+        { x: 50, y: 50, radius: 50, color: 'blue', isDragging: false, z: 0, id: "r1", text: "Node"},
+        { x: 200, y: 200, radius: 50, color: 'red', isDragging: false, z: 1, id: "r2", text: "Node"},
+        { x: 350, y: 50, radius: 50, color: 'green', isDragging: false, z: 2, id: "r3", text: "Node"}
     ];
 
     var selected = [];
@@ -77,7 +77,7 @@ window.onload = function()
             context.textAlign = 'center';
             context.textBaseline = 'middle';
             context.strokeStyle = "white";
-            context.lineWidth = 2;
+            context.lineWidth = 2 * globalSizeModifier;
             context.strokeText(node.text, node.x, node.y);
             context.fillText(node.text, node.x, node.y);
         });
@@ -135,7 +135,7 @@ window.onload = function()
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.strokeStyle = "white";
-        context.lineWidth = 2;
+        context.lineWidth = 2 * globalSizeModifier;
         context.strokeText("line", midpoint[0], midpoint[1] - 10 * globalSizeModifier);
         context.fillText("line", midpoint[0], midpoint[1] - 10 * globalSizeModifier);
     }
@@ -286,10 +286,6 @@ window.onload = function()
         //zoom in
         if (e.deltaY < 0) 
         {
-            globalNodeText *= 1.2;
-            globalRelText *= 1.2;
-            globalArrowSize *= 1.2;
-            globalLineWidth *= 1.2;
             globalSizeModifier *= 1.2;
 
             for (let i = 0; i < nodes.length; i++)
@@ -304,10 +300,6 @@ window.onload = function()
         //zoom out
         else if (e.deltaY > 0) 
         {
-            globalNodeText *= 0.9;
-            globalRelText *= 0.9;
-            globalArrowSize *= 0.9;
-            globalLineWidth *= 0.9;
             globalSizeModifier *= 0.9;
 
             for (let i = 0; i < nodes.length; i++)
