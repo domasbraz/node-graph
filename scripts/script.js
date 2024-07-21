@@ -4,14 +4,21 @@ window.onload = function()
     var canvas = document.getElementById('myCanvas');
     var context = canvas.getContext('2d');
 
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     var nodes = 
     [
-        { x: 50, y: 50, radius: 50, color: 'blue', isDragging: false, z: 0, id: "r1", text: "Node"},
-        { x: 200, y: 200, radius: 50, color: 'red', isDragging: false, z: 1, id: "r2", text: "Node"},
-        { x: 350, y: 50, radius: 50, color: 'green', isDragging: false, z: 2, id: "r3", text: "Node"}
+        { x: 50, y: 50, radius: 30, color: 'blue', isDragging: false, z: 0, id: "r1", text: "Node"},
+        { x: 200, y: 200, radius: 30, color: 'red', isDragging: false, z: 1, id: "r2", text: "Node"},
+        { x: 350, y: 50, radius: 30, color: 'green', isDragging: false, z: 2, id: "r3", text: "Node"}
     ];
 
     var selected = [];
+    var globalDrag = false;
+    var startX, startY;
+
+    var globalSizeModifier = 1;
 
     function checkIfExists(node)
     {
@@ -65,7 +72,7 @@ window.onload = function()
             context.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
             context.fill();
 
-            context.font = '200% Arial';
+            context.font = `${150 * globalSizeModifier}% Arial`;
             context.fillStyle = 'black';
             context.textAlign = 'center';
             context.textBaseline = 'middle';
@@ -95,7 +102,7 @@ window.onload = function()
         const pointBY = nodePoints[1][1];
 
         context.strokeStyle = 'black';
-        context.lineWidth = 2;
+        context.lineWidth = 2 * globalSizeModifier;
         context.fillStyle = 'black';
 
         // Draw the line
@@ -105,7 +112,7 @@ window.onload = function()
         context.stroke();
     
         // Draw the arrowhead
-        const arrowSize = 10;
+        const arrowSize = 10 * globalSizeModifier;
         const angle = Math.atan2(pointBY - pointAY, pointBX - pointAX);
         
         // Arrowhead points
@@ -123,14 +130,14 @@ window.onload = function()
 
         const midpoint = [(nodeA.x + nodeB.x) / 2, (nodeA.y + nodeB.y) / 2];
 
-        context.font = '20px Arial';
+        context.font = `${100 * globalSizeModifier}% Arial`;
         context.fillStyle = 'black';
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.strokeStyle = "white";
         context.lineWidth = 2;
-        context.strokeText("line", midpoint[0], midpoint[1] - 10);
-        context.fillText("line", midpoint[0], midpoint[1] - 10);
+        context.strokeText("line", midpoint[0], midpoint[1] - 10 * globalSizeModifier);
+        context.fillText("line", midpoint[0], midpoint[1] - 10 * globalSizeModifier);
     }
 
     function clearCanvas()
@@ -175,15 +182,17 @@ window.onload = function()
         var mouseY = e.offsetY;
         nodes.forEach(function(node)
         {
-            if (isInsideRectangle(mouseX, mouseY, node) && selected.length < 2)
+            if (globalDrag)
             {
                 node.isDragging = true;
-                node.offsetX = mouseX - node.x;
-                node.offsetY = mouseY - node.y;
+                startX = e.clientX;
+                startY = e.clientY;
+                node.offsetX = node.x;
+                node.offsetY = node.y;
+                canvas.style.cursor = 'grabbing';
             }
             else if (isInsideRectangle(mouseX, mouseY, node))
             {
-                node = getHighestZValue();
                 node.isDragging = true;
                 node.offsetX = mouseX - node.x;
                 node.offsetY = mouseY - node.y;
@@ -197,7 +206,20 @@ window.onload = function()
     {
         nodes.forEach(function(node)
         {
-            if (node.isDragging && node == getHighestZValue())
+            let firstCondition = node.isDragging && globalDrag;
+            let secondCondition = node.isDragging && node == getHighestZValue();
+            if (firstCondition)
+            {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+        
+                node.x = node.offsetX + dx;
+                node.y = node.offsetY + dy;
+                updateCanvas();
+                /* content.style.left = `${initialX + dx}px`;
+                content.style.top = `${initialY + dy}px`; */
+            }
+            if (secondCondition)
             {
                 node.x = e.offsetX - node.offsetX;
                 node.y = e.offsetY - node.offsetY;
@@ -210,6 +232,10 @@ window.onload = function()
     canvas.addEventListener('mouseup', function()
     {
         resetSelected();
+        if (canvas.style.cursor == "grabbing")
+        {
+            canvas.style.cursor = "grab";
+        }
         nodes.forEach(function(node)
         {
             node.isDragging = false;
@@ -220,6 +246,7 @@ window.onload = function()
     canvas.addEventListener('mouseout', function()
     {
         resetSelected();
+        resetCursor();
         nodes.forEach(function(node)
         {
             node.isDragging = false;
@@ -227,5 +254,70 @@ window.onload = function()
     });
 
 
+    document.addEventListener('keydown', function(e)
+    {
+        if (e.code == "Space")
+        {
+            globalDrag = true;
+            if (canvas.style.cursor != "grabbing")
+            {
+                canvas.style.cursor = "grab";
+            }
+        }
+    });
 
+    document.addEventListener('keyup', function(e)
+    {
+        if (e.code == "Space")
+        {
+            globalDrag = false;
+            resetCursor();
+        }
+    });
+
+    function resetCursor()
+    {
+        canvas.style.cursor = "default";
+    }
+
+    document.addEventListener('wheel', function(e) 
+    {
+        //scroll up
+        //zoom in
+        if (e.deltaY < 0) 
+        {
+            globalNodeText *= 1.2;
+            globalRelText *= 1.2;
+            globalArrowSize *= 1.2;
+            globalLineWidth *= 1.2;
+            globalSizeModifier *= 1.2;
+
+            for (let i = 0; i < nodes.length; i++)
+            {
+                let node = nodes[i];
+                node.x *= 1.2;
+                node.y *= 1.2;
+                node.radius *= 1.2;
+            }
+        } 
+        //scroll down
+        //zoom out
+        else if (e.deltaY > 0) 
+        {
+            globalNodeText *= 0.9;
+            globalRelText *= 0.9;
+            globalArrowSize *= 0.9;
+            globalLineWidth *= 0.9;
+            globalSizeModifier *= 0.9;
+
+            for (let i = 0; i < nodes.length; i++)
+            {
+                let node = nodes[i];
+                node.x *= 0.9;
+                node.y *= 0.9;
+                node.radius *= 0.9;
+            }
+        }
+        updateCanvas();
+    });
 }

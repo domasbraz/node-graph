@@ -1,4 +1,21 @@
-#myCanvas 
+body, html 
 {
-    border: 1px solid #000000;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+pop
+{
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    height: 20%;
+    width: 10%;
+    background-color: blue;
+    font-size: 1vw;
+    transform: scale(1);
+    transform-origin: 0 0;
 }
