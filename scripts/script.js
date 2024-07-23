@@ -14,6 +14,11 @@ window.onload = function()
         { x: 350, y: 50, radius: 50, color: 'green', isDragging: false, z: 2, id: "r3", text: "Node"}
     ];
 
+    var relations =
+    [
+        {from: "r1", to: "r2", name: "line"}
+    ];
+
     var selected = [];
     var globalDrag = false;
     var startX, startY;
@@ -83,7 +88,38 @@ window.onload = function()
         });
     }
 
-    function drawArrow(nodeA, nodeB) 
+    function getNode(id)
+    {
+        let result = undefined;
+
+        for (let i = 0; i < nodes.length; i++)
+        {
+            let node = nodes[i];
+
+            if (node.id == id)
+            {
+                result = node;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    function drawRelations()
+    {
+        for (let i = 0; i < relations.length; i++)
+        {
+            let relation = relations[i];
+            let nodeA = getNode(relation.from);
+            let nodeB = getNode(relation.to);
+            let name = relation.name;
+
+            drawArrow(nodeA, nodeB, name);
+        }
+    }
+
+    function drawArrow(nodeA, nodeB, name) 
     {
         if (nodeA.x == nodeB.x && nodeA.y == nodeB.y)
         {
@@ -128,6 +164,11 @@ window.onload = function()
         context.lineTo(pointBX, pointBY);
         context.fill();
 
+        if (name = undefined)
+        {
+            return;
+        }
+
         const midpoint = [(nodeA.x + nodeB.x) / 2, (nodeA.y + nodeB.y) / 2];
 
         context.font = `${100 * globalSizeModifier}% Arial`;
@@ -136,8 +177,8 @@ window.onload = function()
         context.textBaseline = 'middle';
         context.strokeStyle = "white";
         context.lineWidth = 2 * globalSizeModifier;
-        context.strokeText("line", midpoint[0], midpoint[1] - 10 * globalSizeModifier);
-        context.fillText("line", midpoint[0], midpoint[1] - 10 * globalSizeModifier);
+        context.strokeText(name, midpoint[0], midpoint[1] - 10 * globalSizeModifier);
+        context.fillText(name, midpoint[0], midpoint[1] - 10 * globalSizeModifier);
     }
 
     function clearCanvas()
@@ -145,11 +186,12 @@ window.onload = function()
         context.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+
     function updateCanvas()
     {
         clearCanvas();
         
-        drawArrow(nodes[0], nodes[1]);
+        drawRelations();
         drawNodes();
         
     }
