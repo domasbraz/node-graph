@@ -4,19 +4,24 @@ window.onload = function()
     var canvas = document.getElementById('myCanvas');
     var context = canvas.getContext('2d');
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    function setCanvasSize()
+    {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
 
     var nodes = 
     [
-        { x: 50, y: 50, radius: 50, color: 'blue', isDragging: false, z: 0, id: "r1", text: "Node"},
+        { x: 200, y: 50, radius: 50, color: 'blue', isDragging: false, z: 0, id: "r1", text: "Node"},
         { x: 200, y: 200, radius: 50, color: 'red', isDragging: false, z: 1, id: "r2", text: "Node"},
         { x: 350, y: 50, radius: 50, color: 'green', isDragging: false, z: 2, id: "r3", text: "Node"}
     ];
 
     var relations =
     [
-        {from: "r1", to: "r2", name: "line"}
+        {from: "r2", to: "r1", name: "line", drawn: false},
+        {from: "r1", to: "r2", name: "line", drawn: false}
     ];
 
     var selected = [];
@@ -111,24 +116,58 @@ window.onload = function()
         for (let i = 0; i < relations.length; i++)
         {
             let relation = relations[i];
-            let nodeA = getNode(relation.from);
-            let nodeB = getNode(relation.to);
-            let name = relation.name;
 
-            drawArrow(nodeA, nodeB, name);
+            if (relation.drawn)
+            {
+                continue;
+            }
+
+            let opposite = get2WayRelation(relation);
+
+            if (opposite != undefined)
+            {
+                drawArrow(relation, 3000);
+                //drawArrow(opposite, -3000);
+                continue;
+            }
+
+            drawArrow(relation);
         }
     }
 
-    function drawArrow(nodeA, nodeB, name) 
+    function get2WayRelation(relation)
     {
+        let id1 = relation.from;
+        let id2 = relation.to;
+
+        for (let i = 0; i < relations.length; i++)
+        {
+            let relation2 = relations[i];
+
+            if (relation2.from == id2 && relation2.to == id1)
+            {
+                return relation2;
+            }
+        }
+    }
+
+    function drawArrow(relation, yIntersection) 
+    {
+        let nodeA = getNode(relation.from);
+        let nodeB = getNode(relation.to);
+        let name = relation.name;
+
         if (nodeA.x == nodeB.x && nodeA.y == nodeB.y)
         {
+            console.log("same position")
             return;
         }
-        const nodePoints = findClosestPoints(nodeA, nodeB);
+        const nodePoints = findClosestPoints(nodeA, nodeB, yIntersection);
+
 
         if (nodePoints == undefined)
         {
+            console.log("no points")
             return;
         }
 
@@ -164,9 +203,17 @@ window.onload = function()
         context.lineTo(pointBX, pointBY);
         context.fill();
 
-        if (name = undefined)
+        relation.drawn = true;
+
+        if (name == undefined)
         {
             return;
+        }
+
+        let position = yIntersection / 300;
+        if (get2WayRelation(relation).drawn)
+        {
+            position *= -1;
         }
 
         const midpoint = [(nodeA.x + nodeB.x) / 2, (nodeA.y + nodeB.y) / 2];
@@ -177,18 +224,23 @@ window.onload = function()
         context.textBaseline = 'middle';
         context.strokeStyle = "white";
         context.lineWidth = 2 * globalSizeModifier;
-        context.strokeText(name, midpoint[0], midpoint[1] - 10 * globalSizeModifier);
-        context.fillText(name, midpoint[0], midpoint[1] - 10 * globalSizeModifier);
+        context.strokeText(name, midpoint[0], ((midpoint[1] - 10) - position) * globalSizeModifier);
+        context.fillText(name, midpoint[0], ((midpoint[1] - 10) - position) * globalSizeModifier);
     }
 
     function clearCanvas()
     {
         context.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < relations.length; i++)
+        {
+            relations[i].drawn = false;
+        }
     }
 
 
     function updateCanvas()
     {
+        setCanvasSize();
         clearCanvas();
         
         drawRelations();

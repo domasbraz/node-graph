@@ -1,5 +1,9 @@
-function findIntersections(x1, y1, r1, x2, y2, r2) 
+function findIntersections(x1, y1, r1, x2, y2, r2, yIntersection) 
 {
+    if (yIntersection == undefined)
+    {
+        yIntersection = 0;
+    }
     // List to store the intersection points
     const intersections = [];
 
@@ -7,7 +11,7 @@ function findIntersections(x1, y1, r1, x2, y2, r2)
     //y = mx + c
     const A = y2 - y1; //rise
     const B = x1 - x2; //run
-    const C = x2 * y1 - x1 * y2; //y intersection
+    const C = (x2 * y1 - x1 * y2) + yIntersection; //y intersection
 
     // Find intersections with Circle 1
     findNodeIntersections(x1, y1, r1, A, B, C, intersections);
@@ -20,6 +24,23 @@ function findIntersections(x1, y1, r1, x2, y2, r2)
 
 function findNodeIntersections(h, k, r, A, B, C, intersections) 
 {
+    if (B == 0) 
+    { // Special case for vertical line (x = -C/A)
+        const x = -C / A;
+        const discriminant = r * r - (x - h) * (x - h);
+        if (discriminant >= 0) 
+        {
+            const sqrtDiscriminant = Math.sqrt(discriminant);
+            const y1 = k + sqrtDiscriminant;
+            const y2 = k - sqrtDiscriminant;
+            intersections.push([x, y1]);
+            if (discriminant > 0) 
+            {
+                intersections.push([x, y2]);
+            }
+        }
+        return;
+    }
     // Substitute line equation into the circle equation
     const a = A * A + B * B;
     const b = 2 * (A * C + A * B * k - B * B * h);
@@ -44,9 +65,9 @@ function findNodeIntersections(h, k, r, A, B, C, intersections)
     }
 }
 
-function findClosestPoints(nodeA, nodeB)
+function findClosestPoints(nodeA, nodeB, yIntersection)
 {
-    let intersections = findIntersections(nodeA.x, nodeA.y, nodeA.radius, nodeB.x, nodeB.y, nodeB.radius);
+    let intersections = findIntersections(nodeA.x, nodeA.y, nodeA.radius, nodeB.x, nodeB.y, nodeB.radius, yIntersection);
 
     let nodeAPoints = [intersections[0], intersections[1]];
     let nodeBPoints = [intersections[2], intersections[3]];
