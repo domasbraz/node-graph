@@ -1,4 +1,4 @@
-// canvasScript.js
+
 window.onload = function()
 {
     var canvas = document.getElementById('myCanvas');
@@ -29,6 +29,8 @@ window.onload = function()
     var startX, startY;
 
     var globalSizeModifier = 1;
+    var maxZoomIn = 5;
+    var maxZoomOut = 0.5;
 
     function checkIfExists(node)
     {
@@ -380,28 +382,35 @@ window.onload = function()
         //zoom in
         if (e.deltaY < 0) 
         {
-            globalSizeModifier *= 1.2;
-
-            for (let i = 0; i < nodes.length; i++)
+            if (globalSizeModifier < maxZoomIn)
             {
-                let node = nodes[i];
-                node.x *= 1.2;
-                node.y *= 1.2;
-                node.radius *= 1.2;
+                globalSizeModifier *= 1.05;
+            
+
+                for (let i = 0; i < nodes.length; i++)
+                {
+                    let node = nodes[i];
+                    node.x *= 1.05;
+                    node.y *= 1.05;
+                    node.radius *= 1.05;
+                }
             }
         } 
         //scroll down
         //zoom out
         else if (e.deltaY > 0) 
         {
-            globalSizeModifier *= 0.9;
-
-            for (let i = 0; i < nodes.length; i++)
+            if (globalSizeModifier > maxZoomOut)
             {
-                let node = nodes[i];
-                node.x *= 0.9;
-                node.y *= 0.9;
-                node.radius *= 0.9;
+                globalSizeModifier *= 0.95;
+
+                for (let i = 0; i < nodes.length; i++)
+                {
+                    let node = nodes[i];
+                    node.x *= 0.95;
+                    node.y *= 0.95;
+                    node.radius *= 0.95;
+                }
             }
         }
         updateCanvas();
