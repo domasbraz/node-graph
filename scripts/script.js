@@ -456,25 +456,9 @@ window.onload = function()
             {
                 canvas.style.cursor = "grab";
             }
-            addToArray(keysPressed, "Space");
         }
 
-        if (e.key == "a")
-        {
-            addToArray(keysPressed, "a");
-        }
-
-        if (e.key == "Control")
-        {
-            addToArray(keysPressed, "ctrl");
-        }
-
-        if (e.key == "z")
-        {
-            addToArray(keysPressed, "z");
-
-        }
-
+        addToArray(keysPressed, e.key);
 
     });
 
@@ -484,21 +468,9 @@ window.onload = function()
         {
             globalDrag = false;
             resetCursor();
-            keysPressed = removeFromArray(keysPressed, "Space");
         }
 
-        if (e.key == "Control")
-        {
-            keysPressed = removeFromArray(keysPressed, "ctrl")
-        }
-        if (e.key == "a")
-        {
-            keysPressed = removeFromArray(keysPressed, "a")
-        }
-        if (e.key == "z")
-        {
-            keysPressed = removeFromArray(keysPressed, "z")
-        }
+        keysPressed = removeFromArray(keysPressed, e.key);
 
     });
 
