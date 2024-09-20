@@ -25,6 +25,7 @@ window.onload = function()
     ];
 
     var history = [];
+    var historyIndex;
 
     var selected = [];
     var globalDrag = false;
@@ -235,13 +236,53 @@ window.onload = function()
     function updateHistory()
     {
 
-        if (history.length < 10)
+        if (history.length < 10 && (historyIndex == undefined || historyIndex == history.length - 1))
         {
-            history.push({n: nodes, r: relations});
+            history.push({n: nodes.map(node => ({ ...node })), r: relations.map(relations => ({...relations}))});
+            return;
+        }
+
+        if (historyIndex < history.length - 1)
+        {
+            history = history.slice(0, historyIndex + 1);
+            history.push({n: nodes.map(node => ({ ...node })), r: relations.map(relations => ({...relations}))});
+            historyIndex = undefined;
             return;
         }
         history.shift();
         updateHistory();
+    }
+
+    function changeHistory(forward)
+    {
+        if (history.length < 1)
+        {
+            return;
+        }
+        if (forward == true && historyIndex != undefined)
+        {
+            if (historyIndex < history.length - 1)
+            {
+                historyIndex++;
+                nodes = history[historyIndex].n.map(n => ({ ...n }));
+                relations = history[historyIndex].r.map(r => ({...r}));
+                updateCanvas();
+            }
+            return;
+        }
+
+        if (historyIndex == undefined)
+        {
+            historyIndex = history.length - 1;
+        }
+
+        if (historyIndex > 0)
+        {
+            historyIndex--;
+            nodes = history[historyIndex].n.map(n => ({ ...n }));
+            relations = history[historyIndex].r.map(r => ({...r}));
+            updateCanvas();
+        }
     }
 
     function clearCanvas()
@@ -256,7 +297,6 @@ window.onload = function()
 
     function updateCanvas()
     {
-        updateHistory();
         setCanvasSize();
         clearCanvas();
         
@@ -267,6 +307,7 @@ window.onload = function()
 
     // Initial draw
     updateCanvas();
+    updateHistory();
 
     // Utility function to check if a point is inside a nodeangle
     function isInsideRectangle(x, y, node)
@@ -351,6 +392,7 @@ window.onload = function()
         {
             node.isDragging = false;
         });
+        updateHistory();
     });
 
     // Mouse out event handler to stop dragging when the mouse leaves the canvas
@@ -456,6 +498,19 @@ window.onload = function()
             {
                 canvas.style.cursor = "grab";
             }
+        }
+
+        if (e.key == "z" || e.key == "Z")
+        {
+            if (checkOnlyKeysPressed(["Control", "Shift"]))
+            {
+                changeHistory(true);
+            }
+            else if (checkOnlyKeysPressed(["Control"]))
+            {
+                changeHistory();
+            }
+
         }
 
         addToArray(keysPressed, e.key);
