@@ -24,6 +24,8 @@ window.onload = function()
         {from: "r1", to: "r2", name: "line", drawn: false}
     ];
 
+    var history = [];
+
     var selected = [];
     var globalDrag = false;
     var startX, startY;
@@ -230,6 +232,18 @@ window.onload = function()
         context.fillText(name, midpoint[0], ((midpoint[1] - 10) - position));
     }
 
+    function updateHistory()
+    {
+
+        if (history.length < 10)
+        {
+            history.push({n: nodes, r: relations});
+            return;
+        }
+        history.shift();
+        updateHistory();
+    }
+
     function clearCanvas()
     {
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -242,6 +256,7 @@ window.onload = function()
 
     function updateCanvas()
     {
+        updateHistory();
         setCanvasSize();
         clearCanvas();
         
@@ -349,6 +364,88 @@ window.onload = function()
         });
     });
 
+    let keysPressed = [];
+
+    function updateArray(array)
+    {
+        if (array == undefined)
+        {
+            return;
+        }
+
+        let newArray = [];
+
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i] != null)
+            {
+                newArray.push(array[i]);
+            }
+        }
+        return newArray;
+    }
+
+    function addToArray(array, item)
+    {
+        if (array == undefined)
+        {
+            array.push(item)
+            return;
+        }
+
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i] == item)
+            {
+                return;
+            }
+        }
+        array.push(item);
+    }
+
+    function removeFromArray(array, item)
+    {
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i] == item)
+            {
+                array[i] = null;
+            }
+        }
+
+        return updateArray(array);
+    }
+
+    function checkOnlyKeysPressed(keys)
+    {
+        if (keysPressed.length != keys.length)
+        {
+            return false;
+        }
+
+        for (let i = 0; i < keys.length; i++)
+        {
+            if (!existsInArray(keysPressed, keys[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function existsInArray(array, item)
+    {
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i] == item)
+            {
+                return true;
+            }
+        }
+        return false;
+    
+    }
 
     document.addEventListener('keydown', function(e)
     {
@@ -359,7 +456,26 @@ window.onload = function()
             {
                 canvas.style.cursor = "grab";
             }
+            addToArray(keysPressed, "Space");
         }
+
+        if (e.key == "a")
+        {
+            addToArray(keysPressed, "a");
+        }
+
+        if (e.key == "Control")
+        {
+            addToArray(keysPressed, "ctrl");
+        }
+
+        if (e.key == "z")
+        {
+            addToArray(keysPressed, "z");
+
+        }
+
+
     });
 
     document.addEventListener('keyup', function(e)
@@ -368,8 +484,25 @@ window.onload = function()
         {
             globalDrag = false;
             resetCursor();
+            keysPressed = removeFromArray(keysPressed, "Space");
         }
+
+        if (e.key == "Control")
+        {
+            keysPressed = removeFromArray(keysPressed, "ctrl")
+        }
+        if (e.key == "a")
+        {
+            keysPressed = removeFromArray(keysPressed, "a")
+        }
+        if (e.key == "z")
+        {
+            keysPressed = removeFromArray(keysPressed, "z")
+        }
+
     });
+
+
 
     function resetCursor()
     {
