@@ -128,7 +128,7 @@ window.onload = function()
 
             if (opposite != undefined)
             {
-                drawArrow(relation, 3000);
+                drawArrow(relation, 3000 * globalSizeModifier);
                 //drawArrow(opposite, -3000);
                 continue;
             }
@@ -226,8 +226,8 @@ window.onload = function()
         context.textBaseline = 'middle';
         context.strokeStyle = "white";
         context.lineWidth = 2 * globalSizeModifier;
-        context.strokeText(name, midpoint[0], ((midpoint[1] - 10) - position) * globalSizeModifier);
-        context.fillText(name, midpoint[0], ((midpoint[1] - 10) - position) * globalSizeModifier);
+        context.strokeText(name, midpoint[0], ((midpoint[1] - 10) - position));
+        context.fillText(name, midpoint[0], ((midpoint[1] - 10) - position));
     }
 
     function clearCanvas()
