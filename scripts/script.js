@@ -35,6 +35,8 @@ window.onload = function()
     var maxZoomIn = 5;
     var maxZoomOut = 0.5;
 
+    var active = [];
+
     function checkIfExists(node)
     {
         let exists = false;
@@ -96,6 +98,24 @@ window.onload = function()
             context.strokeText(node.text, node.x, node.y);
             context.fillText(node.text, node.x, node.y);
         });
+    }
+
+    function selectActiveNode(node)
+    {
+        active = [node.x, node.y, node.radius, 0, 2 * Math.PI, node.id];
+    }
+
+    function resetActiveNode()
+    {
+        active = [];
+    }
+
+    function drawActive()
+    {
+        context.strokeStyle = "black";
+        context.beginPath();
+        context.arc(active[0], active[1], active[2], active[3], active[4]);
+        context.stroke();
     }
 
     function getNode(id)
@@ -302,6 +322,11 @@ window.onload = function()
         
         drawRelations();
         drawNodes();
+
+        if (active.length > 0)
+        {
+            drawActive();
+        }
         
     }
 
@@ -351,6 +376,18 @@ window.onload = function()
             }
 
         });
+
+        for (let i = 0; i < nodes.length; i++)
+        {
+            if (nodes[i].isDragging && nodes[i] == getHighestZValue())
+            {
+                selectActiveNode(nodes[i]);
+                updateCanvas();
+                break;
+            }
+            resetActiveNode();
+            updateCanvas();
+        }
     });
 
     // Mouse move event handler
@@ -375,6 +412,7 @@ window.onload = function()
             {
                 node.x = e.offsetX - node.offsetX;
                 node.y = e.offsetY - node.offsetY;
+                selectActiveNode(node);
                 updateCanvas();
             }
         });
