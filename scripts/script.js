@@ -36,6 +36,7 @@ window.onload = function()
     var maxZoomOut = 0.5;
 
     var active = [];
+    var clipBoard = [];
 
     function checkIfExists(node)
     {
@@ -79,6 +80,45 @@ window.onload = function()
         return highest;
     }
 
+    function setZValues()
+    {
+        let zValues = [];
+        for (let i = 0; i < nodes.length; i++)
+        {
+            let node = nodes[i];
+
+            while (existsInArray(zValues, node.z))
+            {
+                node.z++;
+            }
+            zValues.push(node.z);
+        }
+    }
+
+    function sortNodes()
+    {
+        let isSorted = true;
+
+        for (let i = 1; i < nodes.length; i++)
+        {
+            let node = nodes[i];
+            let prevNode = nodes[i - 1];
+
+            if (node.z < prevNode.z)
+            {
+                let temp = (JSON.stringify(node));
+
+                node = JSON.parse(JSON.stringify(prevNode));
+                prevNode = JSON.parse(temp);
+                isSorted = false;
+            }
+        }
+        if (isSorted)
+        {
+            return;
+        }
+        sortNodes();
+    }
 
     function drawNodes()
     {
@@ -108,6 +148,7 @@ window.onload = function()
     function resetActiveNode()
     {
         active = [];
+        updateCanvas();
     }
 
     function drawActive()
@@ -279,6 +320,7 @@ window.onload = function()
         {
             return;
         }
+        resetActiveNode();
         if (forward == true && historyIndex != undefined)
         {
             if (historyIndex < history.length - 1)
@@ -303,6 +345,60 @@ window.onload = function()
             relations = history[historyIndex].r.map(r => ({...r}));
             updateCanvas();
         }
+    }
+
+    function copy(node)
+    {
+        if (clipBoard.length < 1)
+        {
+            clipBoard.push(JSON.parse(JSON.stringify(node)));
+            return;
+        }
+        if (clipBoard[0] == node)
+        {
+            return;
+        }
+        clipBoard.shift();
+        copy(node);
+    }
+
+    function paste()
+    {
+        clipBoard[0].x += 20;
+        clipBoard[0].id = assignId(1);
+        let newNode = JSON.parse(JSON.stringify(clipBoard[0]));
+
+        addNode(newNode);
+    }
+
+    function addNode(newNode)
+    {
+        nodes.push(newNode);
+        selectActiveNode(newNode);
+        setZValues();
+        sortNodes();
+        updateHistory();
+        updateCanvas();
+    }
+
+    function assignId(newId)
+    {
+        let exists = false;
+
+        for (let i = 0; i < nodes.length; i++)
+        {
+            if (nodes[i].id.charAt(1) == newId)
+            {
+                exists = true;
+                newId++;
+            }
+        }
+        
+        if (exists)
+        {
+            return assignId(newId);
+        }
+        return "r" + newId;
     }
 
     function clearCanvas()
@@ -334,7 +430,7 @@ window.onload = function()
     updateCanvas();
     updateHistory();
 
-    // Utility function to check if a point is inside a nodeangle
+    // Utility function to check if a point is inside a node angle
     function isInsideRectangle(x, y, node)
     {
         var dx = x - node.x;
@@ -549,6 +645,22 @@ window.onload = function()
                 changeHistory();
             }
 
+        }
+
+        if (e.key == "c" || e.key == "C")
+        {
+            if (checkOnlyKeysPressed(["Control"]) && active.length > 0)
+            {
+                copy(getNode(active[5]));
+            }
+        }
+
+        if (e.key == "v" || e.key == "V")
+        {
+            if (checkOnlyKeysPressed(["Control"]) && clipBoard.length > 0)
+            {
+                paste();
+            }
         }
 
         addToArray(keysPressed, e.key);
