@@ -21,7 +21,8 @@ window.onload = function()
     var relations =
     [
         {from: "r2", to: "r1", name: "line", drawn: false},
-        {from: "r1", to: "r2", name: "line", drawn: false}
+        {from: "r1", to: "r2", name: "line", drawn: false},
+        {from: "r3", to: "r3", name: "line", drawn: false, pos: "NaN"}
     ];
 
     var history = [];
@@ -159,6 +160,50 @@ window.onload = function()
         context.stroke();
     }
 
+    function drawSelfRelation(node)
+    {
+        let relation = getRelation(node.id, node.id);
+        let posX = [node.x - node.radius, node.x + node.radius];
+        let posY = [node.y - node.radius, node.y + node.radius];
+
+        if (relation.pos == "NaN")
+        {
+            let x = Math.floor(Math.random() * 2);
+            let y = Math.floor(Math.random() * 2);
+            relation.pos = "" + x + y;
+        }
+
+        relation.x = posX[relation.pos.charAt(0)];
+        relation.y = posY[relation.pos.charAt(1)]
+
+        context.strokeStyle = "black";
+        context.beginPath();
+        context.arc(relation.x, relation.y, node.radius / 1.5, 0, 2 * Math.PI);
+        context.stroke();
+
+        context.font = `${150 * globalSizeModifier}% Arial`;
+        context.fillStyle = 'black';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.strokeStyle = "white";
+        context.lineWidth = 2 * globalSizeModifier;
+        context.strokeText(relation.name, relation.x, relation.y);
+        context.fillText(relation.name, relation.x, relation.y);
+    }
+
+    function getRelation(from, to)
+    {
+        for (let i = 0; i < relations.length; i++)
+        {
+            let relation = relations[i];
+
+            if (relation.from == from && relation.to == to)
+            {
+                return relation;
+            }
+        }
+    }
+
     function getNode(id)
     {
         let result = undefined;
@@ -185,6 +230,14 @@ window.onload = function()
 
             if (relation.drawn)
             {
+                continue;
+            }
+            if (relation.from == relation.to)
+            {
+                let node = getNode(relation.from);
+
+                drawSelfRelation(node);
+                relation.drawn = true;
                 continue;
             }
 
@@ -421,6 +474,7 @@ window.onload = function()
 
         if (active.length > 0)
         {
+            selectActiveNode(getNode(active[5]));
             drawActive();
         }
         
