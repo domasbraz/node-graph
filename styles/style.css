@@ -19,3 +19,23 @@ pop
     transform: scale(1);
     transform-origin: 0 0;
 }
+
+.gui
+{
+    position: absolute;
+    right: 0;
+    border: 1px solid black;
+    background-color: white;
+}
+
+.side
+{
+    height: 100%;
+    width: 20%;
+}
+
+.top
+{
+    width: 100%;
+    height: 5%;
+}
