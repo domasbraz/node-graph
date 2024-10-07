@@ -781,21 +781,22 @@ window.onload = function()
     });
 }
 
-function hideSide() 
+function animateSideGui() 
 {
     let id = null;
     let gui = document.getElementsByClassName("side")[0];   
     let pos = gui.getAttribute("pos");
+    clearInterval(id);
     if (pos == -25)
     {
-        showSide();
-        return;
+        id = setInterval(frameIn, 5);
+    }
+    else
+    {
+        id = setInterval(frameOut, 5);
     }
 
-    clearInterval(id);
-    id = setInterval(frame, 5);
-
-    function frame() 
+    function frameOut() 
     {
         if (pos == -25) 
         {
@@ -808,17 +809,8 @@ function hideSide()
             gui.style.right = pos + "%";
         }
     }
-}
 
-function showSide()
-{
-    let id = null;
-    let gui = document.getElementsByClassName("side")[0];   
-    let pos = gui.getAttribute("pos");
-    clearInterval(id);
-    id = setInterval(frame, 5);
-    
-    function frame() 
+    function frameIn() 
     {
         if (pos == 0) 
         {
