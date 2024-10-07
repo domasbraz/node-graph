@@ -784,15 +784,17 @@ window.onload = function()
 function hideSide() 
 {
     let id = null;
-    const elem = document.getElementsByClassName("side")[0];   
-    let pos = elem.getAttribute("pos");
+    let gui = document.getElementsByClassName("side")[0];   
+    let pos = gui.getAttribute("pos");
     if (pos == -25)
     {
         showSide();
         return;
     }
+
     clearInterval(id);
     id = setInterval(frame, 5);
+
     function frame() 
     {
         if (pos == -25) 
@@ -802,8 +804,8 @@ function hideSide()
         else 
         {
             pos--; 
-            elem.setAttribute("pos", pos);
-            elem.style.right = pos + "%";
+            gui.setAttribute("pos", pos);
+            gui.style.right = pos + "%";
         }
     }
 }
@@ -811,10 +813,11 @@ function hideSide()
 function showSide()
 {
     let id = null;
-    const elem = document.getElementsByClassName("side")[0];   
-    let pos = elem.getAttribute("pos");
+    let gui = document.getElementsByClassName("side")[0];   
+    let pos = gui.getAttribute("pos");
     clearInterval(id);
     id = setInterval(frame, 5);
+    
     function frame() 
     {
         if (pos == 0) 
@@ -824,8 +827,8 @@ function showSide()
         else 
         {
             pos++; 
-            elem.setAttribute("pos", pos);
-            elem.style.right = pos + "%";
+            gui.setAttribute("pos", pos);
+            gui.style.right = pos + "%";
         }
     }
 }
