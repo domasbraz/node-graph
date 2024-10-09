@@ -472,7 +472,7 @@ window.onload = function()
         drawRelations();
         drawNodes();
 
-        if (active.length > 0)
+        if (getNode(active[5]) != undefined)
         {
             selectActiveNode(getNode(active[5]));
             drawActive();
@@ -677,6 +677,34 @@ window.onload = function()
     
     }
 
+    function deleteNode(node)
+    {
+        node = getNode(node[5]);
+        let newNodes = []
+        for (let i = 0; i < nodes.length; i++)
+        {
+            if (node != nodes[i])
+            {
+                newNodes.push(nodes[i]);
+            }
+        }
+        nodes = newNodes;
+
+        let newRelations = [];
+        for (let i = 0; i < relations.length; i++)
+        {
+            let relation = relations[i];
+            if (node.id != relation.from && node.id != relation.to)
+            {
+                newRelations.push(relation);
+            }
+        }
+        relations = newRelations;
+
+        updateHistory();
+        updateCanvas();
+    }
+
     document.addEventListener('keydown', function(e)
     {
         if (e.code == "Space")
@@ -715,6 +743,12 @@ window.onload = function()
             {
                 paste();
             }
+        }
+
+
+        if (active.length > 0 && e.key == "Delete")
+        {
+            deleteNode(active);
         }
 
         addToArray(keysPressed, e.key);
